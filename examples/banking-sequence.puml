@@ -1,0 +1,76 @@
+@startuml
+title Online Banking - Money Transfer Sequence
+
+actor Customer
+participant "Web Interface" as UI
+participant "Authentication Service" as Auth
+participant "Banking Service" as BS
+participant "From Account" as FA
+participant "To Account" as TA
+participant "Transaction Log" as TL
+participant "Notification Service" as NS
+
+Customer -> UI: initiateTransfer(fromAccount, toAccount, amount)
+activate UI
+
+UI -> Auth: authenticate(customerId)
+activate Auth
+Auth --> UI: authenticationResult
+deactivate Auth
+
+alt authentication successful
+    UI -> BS: transferMoney(fromAccount, toAccount, amount)
+    activate BS
+    
+    BS -> FA: checkBalance(amount)
+    activate FA
+    FA --> BS: balanceAvailable
+    deactivate FA
+    
+    alt sufficient balance
+        BS -> TL: createTransaction(fromAccount, toAccount, amount)
+        activate TL
+        TL --> BS: transactionId
+        deactivate TL
+        
+        BS -> FA: withdraw(amount)
+        activate FA
+        FA --> BS: withdrawalSuccess
+        deactivate FA
+        
+        BS -> TA: deposit(amount)
+        activate TA
+        TA --> BS: depositSuccess
+        deactivate TA
+        
+        BS -> TL: updateTransactionStatus(transactionId, "COMPLETED")
+        activate TL
+        TL --> BS: statusUpdated
+        deactivate TL
+        
+        BS -> NS: sendTransferConfirmation(customer, transactionDetails)
+        activate NS
+        NS --> BS: notificationSent
+        deactivate NS
+        
+        BS --> UI: transferSuccess(transactionId)
+        UI --> Customer: displayConfirmation(transactionId)
+        
+    else insufficient balance
+        BS --> UI: insufficientFunds
+        UI --> Customer: displayError("Insufficient funds")
+    end
+    
+    deactivate BS
+    
+else authentication failed
+    UI --> Customer: displayError("Authentication failed")
+end
+
+deactivate UI
+
+note right of Customer : Customer receives\nconfirmation email\nand SMS notification
+
+note over FA, TA : Both accounts are\nupdated atomically\nto ensure consistency
+
+@enduml 

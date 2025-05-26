@@ -1,0 +1,154 @@
+@startuml
+title E-commerce System - Class Diagram
+
+class Customer {
+  - customerId: String
+  - name: String
+  - email: String
+  - address: Address
+  - registrationDate: Date
+  
+  + Customer(name: String, email: String)
+  + placeOrder(items: List<Product>): Order
+  + getOrderHistory(): List<Order>
+  + updateProfile(name: String, email: String): void
+}
+
+class Order {
+  - orderId: String
+  - orderDate: Date
+  - status: OrderStatus
+  - total: double
+  - shippingAddress: Address
+  
+  + Order(customer: Customer)
+  + addItem(product: Product, quantity: int): void
+  + removeItem(product: Product): void
+  + calculateTotal(): double
+  + updateStatus(status: OrderStatus): void
+}
+
+class OrderItem {
+  - quantity: int
+  - unitPrice: double
+  - subtotal: double
+  
+  + OrderItem(product: Product, quantity: int)
+  + calculateSubtotal(): double
+  + updateQuantity(quantity: int): void
+}
+
+class Product {
+  - productId: String
+  - name: String
+  - description: String
+  - price: double
+  - stockQuantity: int
+  - category: Category
+  
+  + Product(name: String, price: double)
+  + updatePrice(price: double): void
+  + updateStock(quantity: int): void
+  + isInStock(): boolean
+}
+
+class Category {
+  - categoryId: String
+  - name: String
+  - description: String
+  
+  + Category(name: String)
+  + addProduct(product: Product): void
+  + removeProduct(product: Product): void
+}
+
+class Address {
+  - street: String
+  - city: String
+  - state: String
+  - zipCode: String
+  - country: String
+  
+  + Address(street: String, city: String, state: String, zipCode: String)
+  + toString(): String
+  + validate(): boolean
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+class ShoppingCart {
+  - cartId: String
+  - items: List<CartItem>
+  - totalAmount: double
+  
+  + addItem(product: Product, quantity: int): void
+  + removeItem(product: Product): void
+  + updateQuantity(product: Product, quantity: int): void
+  + calculateTotal(): double
+  + checkout(): Order
+}
+
+class CartItem {
+  - product: Product
+  - quantity: int
+  - addedDate: Date
+  
+  + CartItem(product: Product, quantity: int)
+  + updateQuantity(quantity: int): void
+  + getSubtotal(): double
+}
+
+class Payment {
+  - paymentId: String
+  - amount: double
+  - paymentMethod: PaymentMethod
+  - paymentDate: Date
+  - status: PaymentStatus
+  
+  + Payment(order: Order, amount: double, method: PaymentMethod)
+  + processPayment(): boolean
+  + refund(): boolean
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  PAYPAL
+  BANK_TRANSFER
+  CASH_ON_DELIVERY
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+' Relationships
+Customer "1" -- "0..*" Order : places
+Customer "1" -- "0..1" ShoppingCart : has
+Order "1" *-- "1..*" OrderItem : contains
+OrderItem "*" -- "1" Product : references
+Product "*" -- "1" Category : belongs to
+Customer "1" -- "1..*" Address : has
+Order "1" -- "1" Address : ships to
+ShoppingCart "1" *-- "*" CartItem : contains
+CartItem "*" -- "1" Product : references
+Order "1" -- "0..1" Payment : paid by
+
+' Layout hints
+Customer ||--o{ Order
+Order ||--o{ OrderItem
+Product }o--|| Category
+Customer ||--|| ShoppingCart
+ShoppingCart ||--o{ CartItem
+
+@enduml 

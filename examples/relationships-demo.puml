@@ -1,0 +1,115 @@
+@startuml
+title UML Relationships Demonstration
+
+' Association Example
+class Student {
+  - studentId: String
+  - name: String
+  + enroll(course: Course): void
+}
+
+class Course {
+  - courseId: String
+  - title: String
+  - credits: int
+}
+
+' Aggregation Example
+class Department {
+  - name: String
+  - budget: double
+  + addEmployee(emp: Employee): void
+}
+
+class Employee {
+  - employeeId: String
+  - name: String
+  - salary: double
+}
+
+' Composition Example
+class House {
+  - address: String
+  - size: double
+  + addRoom(room: Room): void
+}
+
+class Room {
+  - roomType: String
+  - area: double
+}
+
+' Inheritance Example
+abstract class Animal {
+  # name: String
+  # age: int
+  + eat(): void
+  + sleep(): void
+  + {abstract} makeSound(): void
+}
+
+class Dog {
+  - breed: String
+  + bark(): void
+  + makeSound(): void
+}
+
+class Cat {
+  - color: String
+  + meow(): void
+  + makeSound(): void
+}
+
+' Realization Example
+interface Drawable {
+  + draw(): void
+  + resize(factor: double): void
+}
+
+class Circle {
+  - radius: double
+  + draw(): void
+  + resize(factor: double): void
+}
+
+class Rectangle {
+  - width: double
+  - height: double
+  + draw(): void
+  + resize(factor: double): void
+}
+
+' Dependency Example
+class OrderProcessor {
+  + processOrder(order: Order): void
+}
+
+class EmailService {
+  + sendEmail(message: String): void
+}
+
+class Order {
+  - orderId: String
+  - total: double
+}
+
+' Relationships
+Student "1" -- "*" Course : enrolls >
+Department "1" o-- "*" Employee : contains >
+House "1" *-- "*" Room : has >
+Animal <|-- Dog
+Animal <|-- Cat
+Drawable <|.. Circle
+Drawable <|.. Rectangle
+OrderProcessor ..> EmailService : uses >
+OrderProcessor ..> Order : processes >
+
+' Notes
+note top of Student : Association:\nStudents enroll in courses\nbut can exist independently
+note top of Department : Aggregation:\nEmployees can work for\ndifferent departments
+note top of House : Composition:\nRooms cannot exist\nwithout the house
+note top of Animal : Inheritance:\nDog and Cat inherit\nfrom Animal
+note top of Drawable : Realization:\nClasses implement\nthe Drawable interface
+note top of OrderProcessor : Dependency:\nOrderProcessor uses\nother classes temporarily
+
+@enduml 
